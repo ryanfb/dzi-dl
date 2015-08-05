@@ -4,6 +4,11 @@ require 'nokogiri'
 require 'open-uri'
 require 'tempfile'
 
+def do_mogrify(filename, tile_size, overlap, gravity)
+  geometry = "#{tile_size}x#{tile_size}-#{overlap}-#{overlap}"
+  `mogrify -gravity #{gravity} -crop #{geometry} +repage #{filename}`
+end
+
 $stderr.puts ARGV[0]
 files_url = ARGV[0].sub(/\.(xml|dzi)$/, '_files')
 $stderr.puts files_url
@@ -19,26 +24,48 @@ $stderr.puts deepzoom.inspect
 output_filename = ARGV[0].split(/[?\/=]/).last.sub(/\.(xml|dzi)$/,'') + '.' + deepzoom[:format]
 
 max_level = Math.log2([deepzoom[:width],deepzoom[:height]].max).ceil
-$stderr.puts max_level
-tiles_x = (deepzoom[:width].to_f / deepzoom[:tile_size]).floor
-tiles_y = (deepzoom[:height].to_f / deepzoom[:tile_size]).floor
+$stderr.puts "#{max_level + 1} tile levels"
+tiles_x = (deepzoom[:width].to_f / deepzoom[:tile_size]).ceil
+tiles_y = (deepzoom[:height].to_f / deepzoom[:tile_size]).ceil
 $stderr.puts "#{tiles_x} x #{tiles_y} = #{tiles_x * tiles_y} tiles"
-tempfiles = []
+tempfiles = Array.new(tiles_y){Array.new(tiles_x)}
 begin
   for y in 0..(tiles_y - 1)
     for x in 0..(tiles_x - 1)
       tile_url = File.join(files_url, max_level.to_s, "#{x}_#{y}.#{deepzoom[:format]}")
       tempfile = Tempfile.new(["#{x}_#{y}",".#{deepzoom[:format]}"])
       tempfile.close
-      tempfiles << tempfile
+      tempfiles[y][x] = tempfile
       $stderr.puts "Downloading tile #{x}_#{y}"
       while !system("wget -q -O #{tempfile.path} #{tile_url}") do
         $stderr.puts "Retrying download for: #{tile_url}"
       end
     end
   end
+  if deepzoom[:overlap] != 0
+    $stderr.puts "Shaving overlap from tiles"
+    for x in 0..(tiles_x - 1)
+      for y in 0..(tiles_y - 1)
+        gravity = ''
+        if y == 0
+          gravity += 'North'
+        elsif y == (tiles_y - 1)
+          gravity += 'South'
+        end
+        if x == 0
+          gravity += 'West'
+        elsif x == (tiles_x - 1)
+          gravity += 'East'
+        end
+        if gravity == ''
+          gravity = 'Center'
+        end
+        do_mogrify(tempfiles[y][x].path,deepzoom[:tile_size],deepzoom[:overlap],gravity)
+      end
+    end
+  end
   $stderr.puts "Combining tiles into #{output_filename}"
-  `montage -mode concatenate -tile #{tiles_x}x#{tiles_y} #{tempfiles.map{|t| t.path}.join(' ')} -geometry '-#{deepzoom[:overlap]}-#{deepzoom[:overlap]}' #{output_filename}`
+  `montage -mode concatenate -tile #{tiles_x}x#{tiles_y} #{tempfiles.flatten.map{|t| t.path}.join(' ')} #{output_filename}`
 ensure
-  tempfiles.each{|t| t.unlink}
+  tempfiles.flatten.each{|t| t.unlink}
 end

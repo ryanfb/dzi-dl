@@ -15,6 +15,4 @@ Download full-resolution images for a given Deep Zoom image `.dzi`/`.xml` URL.
 
     bundle exec ./dzi-dl.rb 'http://example.com/dzi-viewer/viewer.ashx?zoom=image.xml'
 
-**NOTE:** Currently, `dzi-dl` uses ImageMagick in such a way that the Deep Zoom image overlap will be missing from the assembled image border (e.g. a DZI with `overlap=2` will be missing 2px around the border in the assembled image).
-
 See also: [iiif-dl](https://github.com/ryanfb/iiif-dl)
