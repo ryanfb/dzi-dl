@@ -19,3 +19,4 @@ See also: [iiif-dl](https://github.com/ryanfb/iiif-dl)
 
     bundle exec ./dzi-dl.rb 'http://example.com/dzi-viewer/viewer.ashx?zoom=image.xml'
 
+To find a `.dzi`/`.xml` URL for a given Deep Zoom image viewer, you may need to open your web browser's Developer Tools and go to e.g. the "Network" pane, then reload the page and see what resources are loaded via AJAX.
