@@ -4,6 +4,10 @@ Command-line tile downloader/assembler for [Deep Zoom](https://en.wikipedia.org/
 
 Download full-resolution images for a given Deep Zoom image `.dzi`/`.xml` URL.
 
+There are many [tools for slicing images into Deep Zoom tiles](https://openseadragon.github.io/examples/creating-zooming-images/). This does the reverse of those.
+
+See also: [iiif-dl](https://github.com/ryanfb/iiif-dl)
+
 ## Requirements
 
  * `wget`
@@ -15,4 +19,3 @@ Download full-resolution images for a given Deep Zoom image `.dzi`/`.xml` URL.
 
     bundle exec ./dzi-dl.rb 'http://example.com/dzi-viewer/viewer.ashx?zoom=image.xml'
 
-See also: [iiif-dl](https://github.com/ryanfb/iiif-dl)
