@@ -37,7 +37,7 @@ begin
       tempfile.close
       tempfiles[y][x] = tempfile
       $stderr.puts "Downloading tile #{x}_#{y}"
-      while !system("wget -q -O #{tempfile.path} #{tile_url}") do
+      while !system("wget -q -O #{tempfile.path} '#{tile_url}'") do
         $stderr.puts "Retrying download for: #{tile_url}"
       end
     end
