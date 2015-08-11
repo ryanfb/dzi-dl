@@ -21,6 +21,6 @@ See also: [iiif-dl](https://github.com/ryanfb/iiif-dl)
 
 To find a `.dzi`/`.xml` URL for a given Deep Zoom image viewer, you may need to open your web browser's Developer Tools and go to e.g. the "Network" pane, then reload the page and see what resources are loaded via AJAX.
 
-Alternately, if you have [PhantomJS](http://phantomjs.org/) installed, you can use `dzixmlreqs.js` to list all URLs ending in `.dzi`/`.xml` requested by a page:
+Alternately, if you have [PhantomJS](http://phantomjs.org/) installed, you can use `dzixmlreqs.js` to list all URLs ending in `.dzi`/`.xml` requested by a given webpage URL:
 
     phantomjs dzixmlreqs.js 'http://example.com/viewer.asp?manuscript=shelfmark'
