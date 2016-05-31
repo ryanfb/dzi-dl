@@ -3,6 +3,11 @@
 require 'nokogiri'
 require 'open-uri'
 require 'tempfile'
+require 'robotex'
+require 'uri'
+
+USER_AGENT = 'dzi-dl'
+DEFAULT_DELAY = 1
 
 def do_mogrify(filename, tile_size, overlap, gravity)
   geometry = "#{tile_size}x#{tile_size}-#{overlap}-#{overlap}"
@@ -13,6 +18,7 @@ $stderr.puts ARGV[0]
 files_url = ARGV[0].sub(/\.(xml|dzi)$/, '_files')
 $stderr.puts files_url
 
+robotex = Robotex.new(USER_AGENT)
 doc = Nokogiri::XML(open(ARGV[0])).remove_namespaces!
 deepzoom = {}
 deepzoom[:tile_size] = doc.xpath('/Image/@TileSize').first.value.to_i
@@ -32,13 +38,21 @@ tempfiles = Array.new(tiles_y){Array.new(tiles_x)}
 begin
   for y in 0..(tiles_y - 1)
     for x in 0..(tiles_x - 1)
-      tile_url = File.join(files_url, max_level.to_s, "#{x}_#{y}.#{deepzoom[:format]}")
-      tempfile = Tempfile.new(["#{x}_#{y}",".#{deepzoom[:format]}"])
-      tempfile.close
-      tempfiles[y][x] = tempfile
-      $stderr.puts "Downloading tile #{x}_#{y}"
-      while !system("wget -q -O #{tempfile.path} '#{tile_url}'") do
-        $stderr.puts "Retrying download for: #{tile_url}"
+      tile_url = URI.escape(File.join(files_url, max_level.to_s, "#{x}_#{y}.#{deepzoom[:format]}"))
+      if robotex.allowed?(tile_url)
+        delay = robotex.delay(tile_url)
+        tempfile = Tempfile.new(["#{x}_#{y}",".#{deepzoom[:format]}"])
+        tempfile.close
+        tempfiles[y][x] = tempfile
+        $stderr.puts "Downloading tile #{x}_#{y}"
+        while !system("wget -U '#{USER_AGENT}' -q -O #{tempfile.path} '#{tile_url}'") do
+          $stderr.puts "Retrying download for: #{tile_url}"
+          sleep (delay ? delay : DEFAULT_DELAY)
+        end
+        sleep (delay ? delay : DEFAULT_DELAY)
+      else
+        $stderr.puts "User agent \"#{USER_AGENT}\" not allowed by `robots.txt` for #{tile_url}, aborting"
+        exit 1
       end
     end
   end
