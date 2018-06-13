@@ -1,3 +1,3 @@
 source 'https://rubygems.org'
 gem 'robotex'
-gem 'nokogiri'
+gem 'nokogiri', '~> 1.7.0'

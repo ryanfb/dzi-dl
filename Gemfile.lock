@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     mini_portile2 (2.1.0)
-    nokogiri (1.7.0)
+    nokogiri (1.7.2)
       mini_portile2 (~> 2.1.0)
     robotex (1.0.0)
 
@@ -10,8 +10,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  nokogiri
+  nokogiri (~> 1.7.0)
   robotex
 
 BUNDLED WITH
-   1.13.2
+   1.16.1
