@@ -81,5 +81,5 @@ begin
   $stderr.puts "Combining tiles into #{output_filename}"
   `montage -mode concatenate -tile #{tiles_x}x#{tiles_y} #{tempfiles.flatten.map{|t| t.path}.join(' ')} #{output_filename}`
 ensure
-  tempfiles.flatten.each{|t| t.unlink}
+  tempfiles.flatten.each{|t| t.unlink unless t.nil?}
 end
