@@ -5,6 +5,7 @@ GEM
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     robotex (1.0.0)
+    ruby-progressbar (1.10.0)
 
 PLATFORMS
   ruby
@@ -12,6 +13,7 @@ PLATFORMS
 DEPENDENCIES
   nokogiri (~> 1.0)
   robotex
+  ruby-progressbar
 
 BUNDLED WITH
    1.16.1

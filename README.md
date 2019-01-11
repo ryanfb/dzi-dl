@@ -29,4 +29,4 @@ Alternately, if you have [PhantomJS](http://phantomjs.org/) installed, you can u
 
 There's also [an automated build for this repository on Docker Hub at `ryanfb/dzi-dl`](http://hub.docker.com/r/ryanfb/dzi-dl). It defines an `ENTRYPOINT` which will start `dzi-dl.rb` and pass any other arguments or environment variables to it, as well as defining a `/data` volume which you can map to your host to store manifests and images. For example, to download an image into the current directory:
 
-    docker run -v $(pwd):/data ryanfb/dzi-dl 'http://example.com/dzi-viewer/viewer.ashx?zoom=image.xml'
+    docker run -t -v $(pwd):/data ryanfb/dzi-dl 'http://example.com/dzi-viewer/viewer.ashx?zoom=image.xml'
