@@ -6,8 +6,8 @@ require 'tempfile'
 require 'robotex'
 require 'uri'
 
-USER_AGENT = 'dzi-dl'
-DEFAULT_DELAY = 1
+USER_AGENT = ENV['USER_AGENT'] || 'dzi-dl'
+DEFAULT_DELAY = ENV['DEFAULT_DELAY'].to_f || 1
 
 def do_mogrify(filename, tile_size, overlap, gravity)
   geometry = "#{tile_size}x#{tile_size}-#{overlap}-#{overlap}"
