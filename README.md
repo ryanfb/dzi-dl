@@ -10,10 +10,9 @@ See also: [iiif-dl](https://github.com/ryanfb/iiif-dl)
 
 ## Requirements
 
- * `wget`
- * [ImageMagick](http://www.imagemagick.org/)
  * Ruby
  * [Bundler](http://bundler.io/)
+ * [ImageMagick](http://www.imagemagick.org/)
  
 ## Usage
 

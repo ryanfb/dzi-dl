@@ -4,6 +4,7 @@ GEM
     mini_portile2 (2.3.0)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
+    open_uri_redirections (0.2.1)
     robotex (1.0.0)
     ruby-progressbar (1.10.0)
 
@@ -12,6 +13,7 @@ PLATFORMS
 
 DEPENDENCIES
   nokogiri (~> 1.0)
+  open_uri_redirections
   robotex
   ruby-progressbar
 
