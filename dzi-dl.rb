@@ -19,6 +19,13 @@ OPEN_URI_OPTIONS = {"User-Agent" => USER_AGENT, :allow_redirections => :all, :ss
 def do_mogrify(filename, tile_size, overlap, gravity)
   geometry = "#{tile_size}x#{tile_size}-#{overlap}-#{overlap}"
   `mogrify -gravity #{gravity} -crop #{geometry} +repage #{filename}`
+  if($?.exitstatus != 0)
+    destination = File.join('backup',File.basename(filename))
+    $stderr.puts "Error calling `mogrify` on #{filename}. Copying bad file to: #{destination}"
+    FileUtils.mkdir_p('backup')
+    FileUtils.cp(filename, destination, :verbose => true)
+    raise "Non-zero exit status for `mogrify`"
+  end
 end
 
 begin
@@ -66,9 +73,14 @@ begin
         tempfiles[y][x] = tempfile
         # progress_bar.log "Downloading tile #{x}_#{y}"
         begin
-          IO.copy_stream(open(tile_url, OPEN_URI_OPTIONS), tempfile.path)
-          unless File.exist?(tempfile.path)
-            raise "#{tempfile.path} doesn't exist"
+          open(tile_url, OPEN_URI_OPTIONS) do |open_uri_response|
+            unless open_uri_response.meta['content-type'] == 'image/jpeg'
+              raise "Got response content-type: #{open_uri_response.meta['content-type']}"
+            end
+            IO.copy_stream(open_uri_response, tempfile.path)
+            unless File.exist?(tempfile.path)
+              raise "#{tempfile.path} doesn't exist"
+            end
           end
         rescue StandardError => e
           progress_bar.log e.inspect
@@ -114,10 +126,20 @@ begin
   end
   $stderr.puts "Combining tiles into #{output_filename}"
   `montage -mode concatenate -tile #{tiles_x}x#{tiles_y} #{tempfiles.flatten.map{|t| t.path}.join(' ')} #{output_filename}`
+  if($?.exitstatus != 0)
+    destination = File.join('backup',File.basename(output_filename))
+    $stderr.puts "Error calling `montage` for #{output_filename}. Moving bad output to: #{destination}"
+    FileUtils.mkdir_p('backup')
+    FileUtils.mv(filename, destination, :verbose => true, :force => true)
+    raise "Non-zero exit status for `montage`"
+  end
   unless File.exist?(output_filename)
     $stderr.puts "ERROR: Expected #{output_filename} to be assembled from tiles, but file does not exist."
     exit 1
   end
+rescue StandardError => e
+  $stderr.puts("#{e.message}, exiting")
+  exit 1
 ensure
   tempfiles.flatten.each{|t| t.unlink unless t.nil?}
 end
