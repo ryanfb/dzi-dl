@@ -6,7 +6,7 @@ Download full-resolution images for a given Deep Zoom image `.dzi`/`.xml` URL.
 
 There are many [tools for slicing images into Deep Zoom tiles](https://openseadragon.github.io/examples/creating-zooming-images/). This does the reverse of those.
 
-See also: [iiif-dl](https://github.com/ryanfb/iiif-dl)
+See also: [iiif-dl](https://github.com/ryanfb/iiif-dl), [dezoomify](https://github.com/lovasoa/dezoomify), [dezoomify-rs](https://github.com/lovasoa/dezoomify-rs)
 
 ## Requirements
 
