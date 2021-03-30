@@ -10,6 +10,7 @@ require 'json'
 require 'net/https'
 require 'ruby-progressbar'
 require 'shellwords'
+require 'addressable/uri'
 
 USER_AGENT = ENV['USER_AGENT'] || 'dzi-dl'
 DEFAULT_DELAY = ENV['DEFAULT_DELAY'].nil? ? 1 : ENV['DEFAULT_DELAY'].to_f
@@ -44,7 +45,7 @@ files_url = ARGV[0].sub(/\.(xml|dzi)$/, '_files')
 $stderr.puts "DeepZoom files URL: #{files_url}"
 
 robotex = Robotex.new(USER_AGENT)
-doc = Nokogiri::XML(open(ARGV[0])).remove_namespaces!
+doc = Nokogiri::XML(URI.open(ARGV[0])).remove_namespaces!
 $stderr.puts "DZI XML document contents:"
 $stderr.puts doc.to_s
 deepzoom = {}
@@ -68,7 +69,7 @@ begin
   for y in 0..(tiles_y - 1)
     for x in 0..(tiles_x - 1)
       retries = 0
-      tile_url = URI.escape(File.join(files_url, max_level.to_s, "#{x}_#{y}.#{deepzoom[:format]}"))
+      tile_url = Addressable::URI.normalized_encode(File.join(files_url, max_level.to_s, "#{x}_#{y}.#{deepzoom[:format]}"))
       if robotex.allowed?(tile_url)
         delay = robotex.delay(tile_url)
         tempfile = Tempfile.new(["#{x}_#{y}",".#{deepzoom[:format]}"])
@@ -76,7 +77,7 @@ begin
         tempfiles[y][x] = tempfile
         # progress_bar.log "Downloading tile #{x}_#{y}"
         begin
-          open(tile_url, OPEN_URI_OPTIONS) do |open_uri_response|
+          URI.open(tile_url, OPEN_URI_OPTIONS) do |open_uri_response|
             unless open_uri_response.meta['content-type'] == 'image/jpeg'
               raise "Got response content-type: #{open_uri_response.meta['content-type']}"
             end
