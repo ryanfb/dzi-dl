@@ -9,6 +9,7 @@ require 'uri'
 require 'json'
 require 'net/https'
 require 'ruby-progressbar'
+require 'shellwords'
 
 USER_AGENT = ENV['USER_AGENT'] || 'dzi-dl'
 DEFAULT_DELAY = ENV['DEFAULT_DELAY'].nil? ? 1 : ENV['DEFAULT_DELAY'].to_f
@@ -44,6 +45,8 @@ $stderr.puts "DeepZoom files URL: #{files_url}"
 
 robotex = Robotex.new(USER_AGENT)
 doc = Nokogiri::XML(open(ARGV[0])).remove_namespaces!
+$stderr.puts "DZI XML document contents:"
+$stderr.puts doc.to_s
 deepzoom = {}
 deepzoom[:tile_size] = doc.xpath('/Image/@TileSize').first.value.to_i
 deepzoom[:overlap] = doc.xpath('/Image/@Overlap').first.value.to_i
@@ -125,12 +128,12 @@ begin
     end
   end
   $stderr.puts "Combining tiles into #{output_filename}"
-  `montage -mode concatenate -tile #{tiles_x}x#{tiles_y} #{tempfiles.flatten.map{|t| t.path}.join(' ')} #{output_filename}`
+  `montage -mode concatenate -tile #{tiles_x}x#{tiles_y} #{tempfiles.flatten.map{|t| t.path}.join(' ')} #{Shellwords.escape(output_filename)}`
   if($?.exitstatus != 0)
-    destination = File.join('backup',File.basename(output_filename))
+    destination = Shellwords.escape(File.join('backup',File.basename(output_filename)))
     $stderr.puts "Error calling `montage` for #{output_filename}. Moving bad output to: #{destination}"
     FileUtils.mkdir_p('backup')
-    FileUtils.mv(filename, destination, :verbose => true, :force => true)
+    FileUtils.mv(output_filename, destination, :verbose => true, :force => true)
     raise "Non-zero exit status for `montage`"
   end
   unless File.exist?(output_filename)
